@@ -259,16 +259,17 @@ def get_accounts_data():
             else:
                 return acc_name, priv_key, proxy, okx_wallet, None
     except (DecryptionError, InvalidKeyError, DecryptionError, ValueError) as error:
-        sys.exit()
+        cprint(f'\nError reading Excel file: {error}', color='light_red')
+        raise error
 
     except ImportError as error:
         print(error)
         cprint(f'\nAre you sure about EXCEL_PASSWORD in general_settings.py?', color='light_red')
-        sys.exit()
+        raise error
 
     except Exception as error:
         cprint(f'\nError in <get_accounts_data> function! Error: {error}\n', color='light_red')
-        sys.exit()
+        raise error
 
 
 # Manage database data and URI
@@ -327,10 +328,17 @@ def delete_databases():
 # Generate client_id
 async def generate_unique_client_id(existing_ids: set, length=16):
     characters = string.ascii_lowercase + string.digits
-    while True:
+    max_attempts = 1000  # Prevent infinite loop
+    attempts = 0
+    
+    while attempts < max_attempts:
         new_id = ''.join(random.choice(characters) for _ in range(length))
         if new_id not in existing_ids:
             return new_id
+        attempts += 1
+    
+    # If we can't generate a unique ID after max_attempts, increase length
+    return await generate_unique_client_id(existing_ids, length + 1)
 
 
 # Основная функция

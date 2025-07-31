@@ -143,7 +143,7 @@ class Client(Logger):
                 #         tx_input.value = input_value
                 print(tx.inputs[0].value)
                 # Setup transaction params
-                tx.outputs = change_output
+                tx.outputs = change_outputs
 
                 # Transaction Sign
                 tx.sign()
