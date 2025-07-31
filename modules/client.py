@@ -60,7 +60,7 @@ class Client(Logger):
         try:
             # Provide to Value type amount
             value_amount = amount
-            if isinstance(amount, Union[str, int]):
+            if isinstance(amount, (str, int)):
                 value_amount = await self.to_sat(amount)
             sat_amount = value_amount.value_sat
 
@@ -103,7 +103,7 @@ class Client(Logger):
                 print(tx.fee)
 
                 fee_exact = tx.fee
-                while 2000 <= fee_exact <= 1000:
+                while 1000 <= fee_exact <= 2000:
                     fee_exact = tx.calculate_fee()
                     self.logger_msg(*self.acc_info, msg=f"Recalculate fee for transaction prev fee {tx.fee},"
                                                         f" estimate fee now {fee_exact}",
@@ -143,7 +143,7 @@ class Client(Logger):
                 #         tx_input.value = input_value
                 print(tx.inputs[0].value)
                 # Setup transaction params
-                tx.outputs = change_output
+                tx.outputs = change_outputs
 
                 # Transaction Sign
                 tx.sign()

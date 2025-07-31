@@ -125,7 +125,7 @@ async def normalize_import_wallets(wallet_names: list, wallet_keys: list, proxie
         exit(1)
 
         # Protect for mnemonic accounts data
-        if isinstance(WALLETS_TO_WORK, Union[list, tuple]):
+        if isinstance(WALLETS_TO_WORK, (list, tuple)):
             if isinstance(WALLETS_TO_WORK, list):
                 wallets_range = [i + 1 for i in range(WALLETS_TO_WORK[1])]
             else:
