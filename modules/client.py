@@ -103,7 +103,7 @@ class Client(Logger):
                 print(tx.fee)
 
                 fee_exact = tx.fee
-                while 2000 <= fee_exact <= 1000:
+                while 1000 <= fee_exact <= 2000:
                     fee_exact = tx.calculate_fee()
                     self.logger_msg(*self.acc_info, msg=f"Recalculate fee for transaction prev fee {tx.fee},"
                                                         f" estimate fee now {fee_exact}",
@@ -143,7 +143,8 @@ class Client(Logger):
                 #         tx_input.value = input_value
                 print(tx.inputs[0].value)
                 # Setup transaction params
-                tx.outputs = change_output
+                # Keep original outputs - the change_outputs logic seems incomplete
+                # tx.outputs = change_output  # This line was using undefined variable
 
                 # Transaction Sign
                 tx.sign()
