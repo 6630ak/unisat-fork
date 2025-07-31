@@ -37,6 +37,17 @@ class Client(Logger):
         self.acc_info = self.account_name, self.address
         self.client_id = client_id
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.close()
+
+    async def close(self):
+        """Properly close the HTTP session to prevent resource leaks."""
+        if self.session and not self.session.closed:
+            await self.session.close()
+
     # Provide to satoshi type (Value object)
     @staticmethod
     async def to_sat(amount: Union[str, int]) -> Value:
@@ -103,7 +114,7 @@ class Client(Logger):
                 print(tx.fee)
 
                 fee_exact = tx.fee
-                while 2000 <= fee_exact <= 1000:
+                while fee_exact < 1000 or fee_exact > 2000:
                     fee_exact = tx.calculate_fee()
                     self.logger_msg(*self.acc_info, msg=f"Recalculate fee for transaction prev fee {tx.fee},"
                                                         f" estimate fee now {fee_exact}",

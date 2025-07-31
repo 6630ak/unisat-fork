@@ -325,12 +325,17 @@ def delete_databases():
 
 
 # Generate client_id
-async def generate_unique_client_id(existing_ids: set, length=16):
+async def generate_unique_client_id(existing_ids: set, length=16, max_attempts=10000):
     characters = string.ascii_lowercase + string.digits
-    while True:
+    attempts = 0
+    while attempts < max_attempts:
         new_id = ''.join(random.choice(characters) for _ in range(length))
         if new_id not in existing_ids:
             return new_id
+        attempts += 1
+    
+    # If we can't generate a unique ID after max_attempts, increase length
+    return await generate_unique_client_id(existing_ids, length + 1, max_attempts)
 
 
 # Основная функция
@@ -378,7 +383,11 @@ def helper(func):
         try:
             while attempts <= MAXIMUM_RETRY and not infinity_flag:
                 try:
-                    return await func(self, *args, **kwargs)
+                    result = await func(self, *args, **kwargs)
+                    # Close session on successful completion
+                    if hasattr(self, 'client') and hasattr(self.client, 'close'):
+                        await self.client.close()
+                    return result
                 except (
                         PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
                         BlockchainExceptionWithoutRetry, ValueError, ClientProxyConnectionError,
@@ -456,7 +465,9 @@ def helper(func):
                             msg=f"Tries are over, software will stop module\n", type_msg='error'
                         )
         finally:
-            await self.client.session.close()
+            # Ensure session is closed if not already closed
+            if hasattr(self, 'client') and hasattr(self.client, 'close'):
+                await self.client.close()
         return False
 
     return wrapper
