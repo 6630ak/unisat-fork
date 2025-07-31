@@ -66,7 +66,7 @@ class Unisat(Logger, RequestClient):
         # If list elements >= limit size then recurse this while response with list will not be == 0
         # Also may check it with help response['data']['total'] in each response
         if len(order_list) >= size:
-            new_order_list = await self.get_order_list(status=status, cursor=cursor + 1, size=size)
+            new_order_list = await self.get_order_list(status=status, cursor=cursor + size, size=size)
             order_list.extend(new_order_list)
         return order_list
 
@@ -388,7 +388,7 @@ class Unisat(Logger, RequestClient):
         # If list elements >= limit size then recurse this while response with list will not be == 0
         # Also may check it with help response['data']['total'] in each response
         if len(order_list) >= limit:
-            new_order_list, new_total_orders = await self.get_account_history(start=start + 100, limit=limit)
+            new_order_list, new_total_orders = await self.get_account_history(start=start + limit, limit=limit)
             order_list.extend(new_order_list)
             total_orders += new_total_orders
         return order_list, total_orders
